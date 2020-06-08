@@ -16,6 +16,8 @@ import org.springframework.web.bind.annotation.RestController;
 import com.login.service.models.Local;
 import com.login.service.services.LocalService;
 
+import io.jsonwebtoken.Jwts;
+
 @RestController
 public class LocalController{
 	
@@ -84,13 +86,38 @@ public class LocalController{
 		
 	}
 	
-	@RequestMapping(value="/delete_local", method=RequestMethod.POST)
-	public void deleteAccount(HttpServletResponse res, HttpServletRequest request, @RequestParam("email") String email) throws IOException {
-		String deleteState = localService.deleteCuenta(email);
+	@RequestMapping(value="/delete", method=RequestMethod.POST)
+	public void deleteAccount(HttpServletResponse res, HttpServletRequest request, @RequestParam("nit") String nit) throws IOException {
+		String deleteState = null;
+		String token = request.getHeader("Authorization");
+		if (token != null) {
+			String nombre = Jwts.parser()
+					.setSigningKey("M@cr@n")
+					.parseClaimsJws(token.replace("Bearer", ""))
+					.getBody()
+					.getSubject();
+			deleteState = localService.deleteCuenta(nit, nombre);
+		}
+		
 		if(deleteState == "200") {
 			res.setHeader("Custom-Header", "foo");
 			res.setStatus(200);
 			res.getWriter().println("El local fue eliminado");
+		}else {
+			res.setHeader("Custom-Header", "foo");
+			res.setStatus(404);
+			res.getWriter().println("Local does't exists");
+		}
+		
+	}
+	
+	@RequestMapping(value="/recuperar", method=RequestMethod.POST)
+	public void recuperarCuenta(HttpServletResponse res, @RequestParam("email") String email) throws IOException {
+		String recuperarCuenta = localService.recuperarCuenta(email);
+		if(recuperarCuenta == "200") {
+			res.setHeader("Custom-Header", "foo");
+			res.setStatus(200);
+			res.getWriter().println("La cuenta fue recuperada");
 		}else {
 			res.setHeader("Custom-Header", "foo");
 			res.setStatus(404);

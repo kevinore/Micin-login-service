@@ -1,6 +1,8 @@
 package com.login.service.services;
 
 
+import java.io.IOException;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -131,11 +133,26 @@ public class LocalServiceImpl implements LocalService{
 	}
 
 	@Override
-	public String deleteCuenta(String email) {
-		if(localRepository.ifExistsEmail(email)==true) {
-			localRepository.deleteAccountState(email);
+	public String deleteCuenta(String nit, String nombre) {
+		System.out.println(localRepository.getNit(nombre));
+		if(localRepository.ifExistsNit(nit)==true && localRepository.getNit(nombre).equals(nit)) {
+			localRepository.deleteAccountState(nit);
 			return "200";
 		}
 		return "404";
+	}
+
+	@Override
+	public String recuperarCuenta(String email) {
+		if(localRepository.ifExistsEmail(email)==true){
+			try {
+				localRepository.recuperarAccount(email);
+				EmailService.recuperarCuenta(email, "https://festive-brahmagupta-59be6c.netlify.app/recuperado");
+				return "200";
+			}catch (Exception e) {
+				System.out.println(e);
+			}
+		}
+		return "400";
 	}
 }

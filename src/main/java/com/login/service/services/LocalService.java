@@ -10,5 +10,6 @@ public interface LocalService {
 	String verifyAccount(String token);
 	int getIdLocal(String token);
 	String validarIfUserIsActive(String nombre);
-	String deleteCuenta(String email);
+	String deleteCuenta(String nit, String nombre);
+	String recuperarCuenta(String email);
 }
